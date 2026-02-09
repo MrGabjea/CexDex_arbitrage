@@ -1,0 +1,12 @@
+[blockchain]
+rpc_url = "https://my_rpc.net"
+pool_address = "0xC6962004f452bE9203591991D15f6b388e09E8D0"
+token0_decimal = 18
+token1_decimal = 6
+
+[CEX]
+ws_url = "wss://api.hyperliquid.xyz/ws"
+coin = "ETH"
+
+[storage]
+data_storage_file_name = "my_file.csv"

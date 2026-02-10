@@ -4,7 +4,7 @@ import websockets
 from web3 import Web3
 import tomllib
 from pathlib import Path
-import pandas as pd
+import csv
 
 path = Path(__file__).resolve().parent.parent
 config_path = path / "config.toml"
@@ -93,18 +93,19 @@ async def main():
                         # print(f"Prix de la pool: {price_pool}")
                         # print(f"bid : {bid['px']}")
                         # print(f"ask : { ask['px']}")
-                        row = {
-                            "timestamp": time,
-                            "bid": bid["px"],
-                            "ask": ask["px"],
-                            "pool_price": price_pool,
-                        }
+                        row = [
+                            time,
+                            bid["px"],
+                            ask["px"],
+                            price_pool
+                        ]
                         last_ask = ask["px"]
                         last_bid = bid["px"]
                         rows.append(row)
-                        if len(rows) > 100:
-                            df = pd.DataFrame(rows)
-                            df.to_csv(CSV_FILE, mode="a", header=False, index=False)
+                        if len(rows) > 5:
+                            with open(CSV_FILE, "a", newline="", encoding="utf-8") as f:
+                                writer = csv.writer(f)
+                                writer.writerows(rows)
                             print(
                                 f"{len(rows)} rows has been successfully added to the dataset ! "
                             )

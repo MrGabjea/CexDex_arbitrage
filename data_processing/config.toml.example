@@ -10,3 +10,4 @@ coin = "ETH"
 
 [storage]
 data_storage_file_name = "my_file.csv"
+storage_buffer_length = 100

@@ -13,6 +13,7 @@ with open(config_path, "rb") as f:
     config = tomllib.load(f)
 
 CSV_FILE = path / "data" / config["storage"]["data_storage_file_name"]
+storage_buffer_length = config["storage"]["storage_buffer_length"]
 WS_URL = config["CEX"]["ws_url"]
 coin = config["CEX"]["coin"]
 rpc_url = config["blockchain"]["rpc_url"]
@@ -102,7 +103,7 @@ async def main():
                         last_ask = ask["px"]
                         last_bid = bid["px"]
                         rows.append(row)
-                        if len(rows) > 5:
+                        if len(rows) > storage_buffer_length:
                             with open(CSV_FILE, "a", newline="", encoding="utf-8") as f:
                                 writer = csv.writer(f)
                                 writer.writerows(rows)

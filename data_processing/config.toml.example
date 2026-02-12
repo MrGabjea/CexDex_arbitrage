@@ -11,3 +11,7 @@ coin = "ETH"
 [storage]
 data_storage_file_name = "my_file.csv"
 storage_buffer_length = 100
+
+[visualisation]
+n_start = 2000
+n_end = 4000

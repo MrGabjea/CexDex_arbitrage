@@ -14,7 +14,7 @@ with open(config_path, "rb") as f:
 
 CSV_FILE = path / "data" / config["storage"]["data_storage_file_name"]
 storage_buffer_length = config["storage"]["storage_buffer_length"]
-WS_URL = config["CEX"]["ws_url"]
+WS_URL = config["CEX"]["wss_url"]
 coin = config["CEX"]["coin"]
 rpc_url = config["blockchain"]["rpc_url"]
 pool_address = config["blockchain"]["pool_address"]
@@ -94,12 +94,7 @@ async def main():
                         # print(f"Prix de la pool: {price_pool}")
                         # print(f"bid : {bid['px']}")
                         # print(f"ask : { ask['px']}")
-                        row = [
-                            time,
-                            bid["px"],
-                            ask["px"],
-                            price_pool
-                        ]
+                        row = [time, bid["px"], ask["px"], price_pool]
                         last_ask = ask["px"]
                         last_bid = bid["px"]
                         rows.append(row)

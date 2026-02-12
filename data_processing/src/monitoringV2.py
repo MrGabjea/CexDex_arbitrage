@@ -1,10 +1,10 @@
 import asyncio
 from web3 import AsyncWeb3, WebSocketProvider
-from web3 import Web3
 import websockets
 import tomllib
 from pathlib import Path
 import json
+import csv
 
 path = Path(__file__).resolve().parent.parent
 config_path = path / "config.toml"
@@ -26,7 +26,7 @@ SWAP_TOPIC = "0xc42079f94a6350d7e6235f29174924f928cc2ac818eb64fed8004e115fbcca67
 # SWAP PART ____________________________________________________________
 async def listen_swaps(queue):
     async with AsyncWeb3(WebSocketProvider(WSS_BLOCKCHAIN)) as w3:
-        subscription_id = await w3.eth.subscribe(
+        await w3.eth.subscribe(
             "logs", {"address": POOL_ADDRESS, "topics": [SWAP_TOPIC]}
         )
         print("Subscribed to Swap events")
@@ -124,15 +124,15 @@ async def aggregator(queue, price_pool):
             case "hyperliquid":
                 if last_swap:
                     # add last swap before HL
-                    print("Nouvel event ajouté :", last_swap)
-                    print(f"row : {row_swap}")
+                    # print("Nouvel event ajouté :", last_swap)
+                    # print(f"row : {row_swap}")
                     rows.append(row_swap)
                     last_swap = {}
                 # add HL
                 last_bid = event["bid"]
                 last_ask = event["ask"]
-                print("Nouvel event ajouté :", event)
-                print(f"row : {[last_bid, last_ask, price_pool]}")
+                # print("Nouvel event ajouté :", event)
+                # print(f"row : {[last_bid, last_ask, price_pool]}")
                 rows.append([last_bid, last_ask, price_pool])
             case "uniswap":
                 # first swap after HL
@@ -143,19 +143,19 @@ async def aggregator(queue, price_pool):
 
                 # several swaps in same block
                 elif last_swap["blockNumber"] == event["blockNumber"]:
-                    print("Swap dans meme block")
+                    # print("Swap dans meme block")
                     if event["logIndex"] > last_swap["logIndex"]:
-                        print(
-                            f"lastSwap index: {last_swap['logIndex']}, new: {event['logIndex']}"
-                        )
+                        # print(
+                        #     f"lastSwap index: {last_swap['logIndex']}, new: {event['logIndex']}"
+                        # )
                         last_swap = event
                         price_pool = last_swap["price"]
                         row_swap = [last_bid, last_ask, price_pool]
 
                 # new swap following a swap in another block
                 else:
-                    print("Nouvel event ajouté :", last_swap)
-                    print(f"row : {[last_bid, last_ask, price_pool]}")
+                    # print("Nouvel event ajouté :", last_swap)
+                    # print(f"row : {[last_bid, last_ask, price_pool]}")
                     rows.append([last_bid, last_ask, price_pool])
                     last_swap = event
                     price_pool = last_swap["price"]
@@ -163,7 +163,13 @@ async def aggregator(queue, price_pool):
             case _:
                 print("Unknow source")
 
-        print("Taille stack :", len(rows))
+        # Storage
+        if len(rows) > STORAGE_BUFFER_LENGTH:
+            with open(CSV_FILE, "a", newline="", encoding="utf-8") as f:
+                writer = csv.writer(f)
+                writer.writerows(rows)
+            print(f"{len(rows)} rows has been successfully added to the dataset ! ")
+            rows = []
 
 
 async def main():

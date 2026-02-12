@@ -10,7 +10,7 @@ config_path = path / "config.toml"
 with open(config_path, "rb") as f:
     config = tomllib.load(f)
 
-CSV_FILE = path / "data" / config["storage"]["data_storage_file_name"]
+CSV_FILE = path / "data" / config["visualisation"]["data_visu_file_name"]
 n_start = config["visualisation"]["n_start"]
 n_end = config["visualisation"]["n_end"]
 

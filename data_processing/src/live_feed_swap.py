@@ -1,6 +1,5 @@
 import asyncio
 from web3 import AsyncWeb3, WebSocketProvider
-from web3 import Web3
 
 """
 path = Path(__file__).resolve().parent.parent
@@ -70,7 +69,7 @@ SWAP_TOPIC = "0xc42079f94a6350d7e6235f29174924f928cc2ac818eb64fed8004e115fbcca67
 async def listen_swaps():
     async with AsyncWeb3(WebSocketProvider(WSS_ADDRESS)) as w3:
         # on s’abonne aux logs filtrés par adresse et topic
-        subscription_id = await w3.eth.subscribe(
+        await w3.eth.subscribe(
             "logs", {"address": POOL_ADDRESS, "topics": [SWAP_TOPIC]}
         )
         print("Subscribed to Swap events")

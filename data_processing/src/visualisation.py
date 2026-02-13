@@ -10,14 +10,23 @@ config_path = path / "config.toml"
 with open(config_path, "rb") as f:
     config = tomllib.load(f)
 
-CSV_FILE = path / "data" / config["visualisation"]["data_visu_file_name"]
+CSV_FILE = path / "data" / config["visualisation"]["data_file_name"]
 n_start = config["visualisation"]["n_start"]
 n_end = config["visualisation"]["n_end"]
 
 # load data
 df = pd.read_csv(CSV_FILE, header=None)
-columns = ["timestamp", "bid", "ask", "price_pool"]
+match len(df.columns):
+    case 4:
+        columns = ["timestamp", "bid", "ask", "price_pool"]
+    case 3:
+        columns = [ "bid", "ask", "price_pool"]
 df.columns = columns
+
+# filter data
+df = df[
+    ((df["ask"] - df["price_pool"]).abs() / df["ask"]) <= 0.05
+]
 
 df["spread_bid"] = df["price_pool"] - df["bid"]
 df["spread_ask"] = df["ask"] - df["price_pool"]
@@ -28,6 +37,7 @@ df["spread_taker"] = (
     / df["price_pool"]
 )
 
+# COMMENT TO PLOT PRICE
 plt.figure()
 plt.plot(df["price_pool"][n_start:n_end], label="price_pool")
 plt.plot(df["bid"][n_start:n_end], label="bid")
@@ -35,6 +45,7 @@ plt.plot(df["ask"][n_start:n_end], label="ask")
 plt.title("Evolution of price")
 plt.grid()
 plt.legend()
+
 
 plt.figure()
 plt.plot(df["spread_taker"][n_start:n_end], label="spread taker (%)")

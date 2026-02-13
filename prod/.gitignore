@@ -1,0 +1,16 @@
+# Fichiers de compilation / build
+/target/
+
+# Fichiers temporaires / IDE
+**/*.rs.bk
+*.swp
+.idea/
+.vscode/
+*.sublime-project
+*.sublime-workspace
+
+# Logs
+*.log
+
+# Mac / Linux temporaires
+.DS_Store

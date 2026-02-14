@@ -1,9 +1,7 @@
-use tokio::sync::mpsc;
-use super::{uniswap, hyperliquid, LiveEvent};
+use super::{LiveEvent, hyperliquid, uniswap};
+use tokio::sync::mpsc::{self, Sender};
 
-
-pub async fn start_livefeed() -> anyhow::Result<()> {
-
+pub async fn start_livefeed(sender: Sender<LiveEvent>) -> anyhow::Result<()> {
     const WSS_BLOCKCHAIN: &str = "wss://arbitrum.drpc.org";
     const POOL_ADDRESS: &str = "0xC6962004f452bE9203591991D15f6b388e09E8D0";
     const SWAP_TOPIC: &str = "0xc42079f94a6350d7e6235f29174924f928cc2ac818eb64fed8004e115fbcca67";
@@ -18,26 +16,9 @@ pub async fn start_livefeed() -> anyhow::Result<()> {
         WSS_BLOCKCHAIN,
         POOL_ADDRESS,
         SWAP_TOPIC,
-        tx.clone(),
+        sender.clone(),
     ));
 
-    tokio::spawn(hyperliquid::hyperliquid_feed(
-        WSS_URL,
-        COIN,
-        tx,
-    ));
-
-    // Consumer central
-    while let Some(event) = rx.recv().await {
-        match event {
-            LiveEvent::Uniswap {..} => {
-                println!("[UNI] {:?} ",event );
-            }
-            LiveEvent::Hyperliquid { coin, raw_message } => {
-                println!("[HYPER] {}", coin);
-            }
-        }
-    }
-
+    tokio::spawn(hyperliquid::hyperliquid_feed(WSS_URL, COIN, sender.clone()));
     Ok(())
 }

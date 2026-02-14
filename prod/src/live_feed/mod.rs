@@ -1,11 +1,12 @@
 use ethers::types::{I256, U256};
+use serde_json::Value;
 
+mod hyperliquid;
 pub mod livefeed;
 mod uniswap;
-mod hyperliquid;
 
 #[derive(Debug, Clone)]
-enum LiveEvent {
+pub enum LiveEvent {
     Uniswap {
         block_number: u64,
         log_index: u64,
@@ -15,7 +16,7 @@ enum LiveEvent {
         liquidity: U256,
     },
     Hyperliquid {
-        coin: String,
-        raw_message: String,
+        timestamp: u64,
+        levels: Vec<Value>,
     },
 }

@@ -1,8 +1,8 @@
+use crate::live_feed::LiveEvent;
 use ethers::prelude::*;
 use ethers::types::{Filter, H160, H256, I256, U256};
 use futures_util::StreamExt;
 use std::str::FromStr;
-use crate::live_feed::LiveEvent;
 use tokio::sync::mpsc::Sender;
 
 /// Démarre le flux live des événements Uniswap
@@ -34,14 +34,13 @@ pub async fn uniswap_feed(
 
         let data = log.data.as_ref();
         let block_number = match log.block_number {
-                Some(b) => b.as_u64(),
-                None => 0,
+            Some(b) => b.as_u64(),
+            None => 0,
         };
         let log_index = match log.log_index {
             Some(i) => i.as_u64(),
             None => 0,
         };
-
 
         // On vérifie qu'on a au moins 4 slots de 32 bytes
         if data.len() >= 128 {

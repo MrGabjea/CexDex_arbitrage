@@ -30,7 +30,7 @@ pub async fn uniswap_feed(
 
     // Boucle asynchrone sur les événements
     while let Some(log) = stream.next().await {
-        println!("Received log");
+        // println!("Received log");
 
         let data = log.data.as_ref();
         let block_number = match log.block_number {

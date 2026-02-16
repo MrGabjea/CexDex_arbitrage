@@ -1,10 +1,10 @@
 use super::Swap;
 use super::sqrt_price_x96_to_price;
+use crate::config::SPREAD_THRESHOLD;
 use crate::live_feed::LiveEvent;
 use ethers::types::U256;
 use serde_json::Value;
 use tokio::sync::mpsc;
-use crate::config::SPREAD_THRESHOLD;
 
 #[derive(Debug, Default)]
 pub struct MarketState {
@@ -75,8 +75,7 @@ impl MarketState {
     }
 
     pub fn imbalance(&self) -> (f64, bool) {
-        if let Some(price_bc) = &self.last_price_pool
-         {
+        if let Some(price_bc) = &self.last_price_pool {
             let spread_bid: f64 = match &self.best_bid {
                 Some(bid) => bid - price_bc,
                 _ => 0.0,
@@ -86,20 +85,21 @@ impl MarketState {
                 _ => 0.0,
             };
             let side: bool;
-            let spread = 10000.0*(if spread_ask > spread_bid {
-                side = true;
-                spread_ask
-            } else if spread_bid > 0.0 {
-                side = false;
-                spread_bid
-            } else {
-                side = false;
-                0.0
-            })/ *price_bc;
-            return (spread,side);
-        }
-        else{
-        return (0.0, true);
+            let spread = 10000.0
+                * (if spread_ask > spread_bid && spread_ask > 0.0 {
+                    side = false;
+                    spread_ask
+                } else if spread_bid > 0.0 {
+                    side = true;
+                    spread_bid
+                } else {
+                    side = true;
+                    0.0
+                })
+                / *price_bc;
+            return (spread, side);
+        } else {
+            return (0.0, true);
         }
     }
 }
